@@ -1,0 +1,109 @@
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>  
+
+using namespace std;
+
+class Node {
+public:
+    string Id;
+    string name;
+    string developer;
+    string publisher;
+    float size;
+    int download;
+    Node *left, *right;
+
+    Node(string Id, string name, string developer, string publisher, float size, int download) {
+        this->Id = Id;
+        this->name = name;
+        this->developer = developer;
+        this->publisher = publisher;
+        this->size = size;
+        this->download = download;
+        left = right = nullptr;
+    }
+};
+
+class Tree {
+public:
+    Node *root;
+
+    Tree() { 
+        root = nullptr;
+    }
+
+    Node* insert(Node* node, string Id, string name, string developer, string publisher, float size, int download) {
+        if (node == nullptr) {
+            return new Node(Id, name, developer, publisher, size, download);
+        }
+        if (Id < node -> Id) {
+            node->left = insert(node->left, Id, name, developer, publisher, size, download);
+        } else {
+            node->right = insert(node->right, Id, name, developer, publisher, size, download);
+        }
+        return node;
+    }
+
+    void insert(string Id, string name, string developer, string publisher, float size, int download) {
+        root = insert(root, Id, name, developer, publisher, size, download);
+    }
+
+    void inorder(Node* node) {
+        if (node == nullptr) return;
+        inorder(node->left);
+        cout << node->Id << ", " << node->name << ", " << node->developer << ", "
+             << node->publisher << ", " << node->size << ", " << node->download << endl;
+        inorder(node->right);
+    }
+
+    void inorder() { 
+        inorder(root); 
+    }
+};
+
+int main() {
+    Tree tree;
+    ifstream file("Games.txt");
+    int num  = 87 * 10 + 100;  // Replace 87 with the last two digits of your roll number
+    srand(232587);  // Seed for random number generation
+
+    if (file.is_open()) {
+        string line;
+        while (getline(file, line)) {
+            int random = rand() % 1000;
+
+            // Skip the line if the random number is less than 'number'
+            if (random < num) {
+                continue;
+            }
+
+            stringstream ss(line);
+            string Id, name, developer, publisher, sizeStr, downloadStr;
+            float size;
+            int download;
+
+            // Parse comma-separated values
+            getline(ss, Id, ',');
+            getline(ss, name, ',');
+            getline(ss, developer, ',');
+            getline(ss, publisher, ',');
+            getline(ss, sizeStr, ',');
+            getline(ss, downloadStr, ',');
+
+            // Convert size and download from string to appropriate types
+            size = stof(sizeStr);
+            download = stoi(downloadStr);
+
+            // Insert into the BST
+            tree.insert(Id, name, developer, publisher, size, download);
+        }
+        file.close();
+    }
+
+    // Display the inorder traversal of the tree
+    tree.inorder();
+
+    return 0;
+}
